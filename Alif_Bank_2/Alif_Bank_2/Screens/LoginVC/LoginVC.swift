@@ -6,53 +6,36 @@
 //
 
 import UIKit
-import FirebaseAuth
 
 class LoginVC: UIViewController {
 
-    var nameOfApplication = ABLabel(textAlignment: .center, fontSize: 30, numberOfLines: 1)
-    var emailTextField = ABTextField()
-    var passwordTextField = ABTextField()
-    var loginPressed = ABButton(backgroundColor: .systemGreen, title: "Log In")
-    var registerPressed = ABButton(backgroundColor: .systemBlue, title: "Register")
+    let nameOfApplication = ABLabel(textAlignment: .center, fontSize: 30, numberOfLines: 1)
+    let emailTextField = ABTextField()
+    let passwordTextField = ABTextField()
+    let loginPressed = ABButton(backgroundColor: .systemGreen, title: "Log In")
+    let registerPressed = ABButton(backgroundColor: .systemBlue, title: "Register")
+
+    let notesListNC = UINavigationController(rootViewController: NotesListVC())
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
         view.backgroundColor = .systemBackground
+        notesListNC.modalPresentationStyle = .fullScreen
 
         configure()
     }
 
     @objc func logIn() {
-
-        if let email = emailTextField.text, let password = passwordTextField.text {
-            Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
-                if let e = error {
-                    print(e)
-                } else {
-
-                    let vc = NotesListVC()
-                    vc.modalPresentationStyle = .fullScreen
-                    self.navigationController?.present(UINavigationController(rootViewController: vc) , animated: true)
-                }
-            }
-        }
+         FirebaseManager.shared.logIn(email: emailTextField, password: passwordTextField, completion: {
+            self.present(self.notesListNC, animated: true)
+        })
     }
 
     @objc func registration() {
-
-        if let email = emailTextField.text, let password = passwordTextField.text {
-            Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
-                if let e = error {
-                    print(e)
-                } else {
-
-                    let vc = NotesListVC()
-                    vc.modalPresentationStyle = .fullScreen
-                    self.navigationController?.present(UINavigationController(rootViewController: vc) , animated: true)
-                }
-            }
-        }
+        FirebaseManager.shared.registration(email: emailTextField, password: passwordTextField, completion: {
+           self.present(self.notesListNC, animated: true)
+       })
     }
 
     private func configure() {
@@ -75,7 +58,7 @@ class LoginVC: UIViewController {
         registerPressed.addTarget(self, action: #selector(registration), for: .touchUpInside)
 
         NSLayoutConstraint.activate([
-            nameOfApplication.topAnchor.constraint(equalTo: view.topAnchor, constant: 200),
+            nameOfApplication.topAnchor.constraint(equalTo: view.topAnchor, constant: view.frame.height / 5),
             nameOfApplication.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
             nameOfApplication.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
             nameOfApplication.heightAnchor.constraint(equalToConstant: height),

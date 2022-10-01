@@ -6,13 +6,10 @@
 //
 
 import UIKit
-import FirebaseAuth
-import FirebaseFirestore
 
 class NotesListVC: UIViewController {
 
-    var logout = ABButton(frame: .zero)
-    let db = Firestore.firestore()
+    let logout = ABButton(frame: .zero)
     var notes: [Note] = []
 
     var tableView: UITableView!
@@ -21,14 +18,13 @@ class NotesListVC: UIViewController {
         super.viewDidLoad()
 
         view.backgroundColor = .systemBackground
-
+        title = "Notes"
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "", image: UIImage(systemName: "rectangle.portrait.and.arrow.forward"), target: self, action: #selector(signOut))
-
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "", image: UIImage(systemName: "plus"), target: self, action: #selector(createNote))
 
         configure()
         configureTableView()
-        loadNotes()
+        loadingNotes()
     }
 
     func configureTableView() {
@@ -41,12 +37,8 @@ class NotesListVC: UIViewController {
         tableView.register(NoteCell.self, forCellReuseIdentifier: NoteCell.reusedID)
     }
 
-    func loadNotes() {
-
-        db.collection("notes")
-            .order(by: "date")
-            .addSnapshotListener { (querySnapshot, error) in
-
+    func loadingNotes() {
+        FirebaseManager.shared.loadData(collectionName: "notes") { querySnapshot, error in
             self.notes = []
 
             if let e = error {
@@ -66,7 +58,7 @@ class NotesListVC: UIViewController {
                             self.notes.append(newMessage)
 
                             DispatchQueue.main.async {
-                                   self.tableView.reloadData()
+                                self.tableView.reloadData()
                                 let indexPath = IndexPath(row: self.notes.count - 1, section: 0)
                                 self.tableView.scrollToRow(at: indexPath, at: .top, animated: false)
                             }
@@ -91,11 +83,7 @@ class NotesListVC: UIViewController {
     }
 
     @objc func createNote() {
-
-        let noteVC = NoteVC()
-        noteVC.modalPresentationStyle = .fullScreen
-
-        self.present(UINavigationController(rootViewController: noteVC), animated: true)
+        self.present(UINavigationController(rootViewController: NoteVC()), animated: true)
     }
 
     @objc func signOut() {
@@ -104,52 +92,38 @@ class NotesListVC: UIViewController {
 }
 
 extension NotesListVC: UITableViewDelegate, UITableViewDataSource {
-
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return notes.count
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 56
+        return 50
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
-        let message = notes[indexPath.row]
         let cell = tableView.dequeueReusableCell(withIdentifier: NoteCell.reusedID, for: indexPath) as! NoteCell
-        cell.label.text = message.body
+        cell.noteLabel.text = notes[indexPath.row].body
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let detailNoteVC = DetailNoteVC()
+        detailNoteVC.note = notes[indexPath.row]
 
-        let destVC = DetailNoteVC()
-        destVC.id = notes[indexPath.row].id
-        destVC.note = notes[indexPath.row]
-
-        let navController = UINavigationController(rootViewController: destVC)
-        present(navController, animated: true)
-    }
-
-    private func handleMoveToTrash(id: String) {
-
-        db.collection("notes").document(id).delete() { err in
-            if let err = err {
-                print("Error removing document: \(err)")
-            } else {
-                self.loadNotes()
-                print("Document successfully removed!")
-            }
-        }
+        let detailNoteNC = UINavigationController(rootViewController: detailNoteVC)
+        present(detailNoteNC, animated: true)
     }
 
     func tableView(_ tableView: UITableView,
                    trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let action = UIContextualAction(style: .normal,
+        let action = UIContextualAction(style: .destructive,
                                         title: "Delete") { [weak self] (action, view, completionHandler) in
             guard let self = self else { return }
-            self.handleMoveToTrash(id: self.notes[indexPath.row].id)
-                                            completionHandler(true)
+
+            FirebaseManager.shared.deleteData(id: self.notes[indexPath.row].id) {
+                self.loadingNotes()
+                completionHandler(true)
+            }
         }
         return UISwipeActionsConfiguration(actions: [action])
     }

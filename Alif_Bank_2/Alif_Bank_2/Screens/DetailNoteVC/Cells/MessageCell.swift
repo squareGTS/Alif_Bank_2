@@ -11,12 +11,11 @@ class MessageCell: UITableViewCell {
 
     static let reusedID = "MessageCell"
 
-    var senderLabel = ABLabel(textAlignment: .left, fontSize: 14, numberOfLines: 2)
-    var messageLabel = ABLabel(textAlignment: .left, fontSize: 12, numberOfLines: 3)
+    let senderLabel = ABLabel(textAlignment: .left, fontSize: 14, numberOfLines: 2)
+    let messageLabel = ABLabel(textAlignment: .left, fontSize: 12, numberOfLines: 3)
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: .default, reuseIdentifier: reuseIdentifier)
-
         self.backgroundColor = .systemGray6
 
         configure()
@@ -37,7 +36,7 @@ class MessageCell: UITableViewCell {
         NSLayoutConstraint.activate([
             senderLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor),
             senderLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: padding),
-            senderLabel.trailingAnchor.constraint(equalTo: messageLabel.leadingAnchor, constant: -10),
+            senderLabel.trailingAnchor.constraint(equalTo: messageLabel.leadingAnchor, constant: -padding),
             senderLabel.heightAnchor.constraint(equalToConstant: 60),
 
             messageLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor),

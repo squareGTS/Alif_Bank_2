@@ -12,39 +12,32 @@ import FirebaseAuth
 class FirebaseManager {
 
     static let shared = FirebaseManager()
-
     let db = Firestore.firestore()
 
-    @objc func logIn(email: UITextField, password: UITextField) -> UIViewController {
-        var vc = UIViewController()
-        vc.modalPresentationStyle = .fullScreen
+    @objc func logIn(email: UITextField, password: UITextField, completion: @escaping () ->()) {
 
         if let email = email.text, let password = password.text {
             Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
                 if let e = error {
                     print(e)
                 } else {
-                    vc = NotesListVC()
+                    completion()
                 }
             }
         }
-        return vc
     }
 
-    @objc func registration(email: UITextField, password: UITextField) -> UIViewController {
-        var vc = UIViewController()
-        vc.modalPresentationStyle = .fullScreen
+    @objc func registration(email: UITextField, password: UITextField, completion: @escaping () ->()) {
 
         if let email = email.text, let password = password.text {
             Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
                 if let e = error {
                     print(e)
                 } else {
-                    vc = NotesListVC()
+                    completion()
                 }
             }
         }
-        return vc
     }
 
     @objc func signOut() -> Bool {
@@ -59,4 +52,45 @@ class FirebaseManager {
         }
         return status
     }
+
+    @objc func saveData(message: UITextField, collection: String) {
+
+        if let messageBody = message.text, let messageSender = Auth.auth().currentUser?.email {
+            db.collection(collection).addDocument(data: [
+                "sender": messageSender,
+                "body": messageBody,
+                "date": Date().timeIntervalSince1970,
+            ]) { (error) in
+                if let e = error {
+                    print("There was an issue saving data to firestore, \(e)")
+                } else {
+                    print("Successfully saved data.")
+                }
+            }
+        }
+    }
+
+    func deleteData(id: String, completion: @escaping () -> ()) {
+
+        db.collection("notes").document(id).delete() { err in
+            if let err = err {
+                print("Error removing document: \(err)")
+            } else {
+                completion()
+                print("Document successfully removed!")
+            }
+        }
+    }
+
+    func loadData(collectionName: String, completion: @escaping (QuerySnapshot?, Error?) -> ()) {
+
+        db.collection(collectionName)
+            .order(by: "date")
+            .addSnapshotListener { (querySnapshot, error) in
+
+                completion(querySnapshot, error)
+            }
+    }
+
+
 }

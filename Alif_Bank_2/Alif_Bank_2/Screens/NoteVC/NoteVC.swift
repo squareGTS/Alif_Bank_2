@@ -6,19 +6,16 @@
 //
 
 import UIKit
-import FirebaseAuth
-import FirebaseFirestore
 
 class NoteVC: UIViewController {
 
-    var messageTextField = ABTextField()
-    var saveButton = ABButton(backgroundColor: .systemRed, title: "Save")
-
-    let db = Firestore.firestore()
+    let messageTextField = ABTextField()
+    let saveButton = ABButton(backgroundColor: .systemRed, title: "Save")
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.title = "Create"
         view.backgroundColor = .systemBackground
 
         saveButton.addTarget(self, action: #selector(savePressed), for: .touchUpInside)
@@ -26,23 +23,10 @@ class NoteVC: UIViewController {
     }
 
     @objc func savePressed() {
+        FirebaseManager.shared.saveData(message: messageTextField, collection: "notes")
 
-        if let messageBody = messageTextField.text, let messageSender = Auth.auth().currentUser?.email {
-            db.collection("notes").addDocument(data: [
-                "sender": messageSender,
-                "body": messageBody,
-                "date": Date().timeIntervalSince1970,
-            ]) { (error) in
-                if let e = error {
-                    print("There was an issue saving data to firestore, \(e)")
-                } else {
-                    print("Successfully saved data.")
-
-                    DispatchQueue.main.async {
-                        self.messageTextField.text = ""
-                    }
-                }
-            }
+        DispatchQueue.main.async {
+            self.messageTextField.text = ""
         }
     }
 
@@ -50,15 +34,19 @@ class NoteVC: UIViewController {
         view.addSubview(messageTextField)
         view.addSubview(saveButton)
 
+        messageTextField.backgroundColor = .systemGray6
+
+        let padding: CGFloat = 6
+
         NSLayoutConstraint.activate([
-            messageTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
-            messageTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 6),
-            messageTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -6),
-            messageTextField.heightAnchor.constraint(equalToConstant: 300),
+            messageTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: view.frame.height / 10),
+            messageTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
+            messageTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
+            messageTextField.heightAnchor.constraint(equalToConstant: 100),
 
             saveButton.topAnchor.constraint(equalTo: messageTextField.bottomAnchor, constant: 20),
-            saveButton.leadingAnchor.constraint(equalTo: messageTextField.leadingAnchor),
-            saveButton.trailingAnchor.constraint(equalTo: messageTextField.trailingAnchor),
+            saveButton.leadingAnchor.constraint(equalTo: messageTextField.leadingAnchor, constant: padding),
+            saveButton.trailingAnchor.constraint(equalTo: messageTextField.trailingAnchor, constant: -padding),
             saveButton.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
