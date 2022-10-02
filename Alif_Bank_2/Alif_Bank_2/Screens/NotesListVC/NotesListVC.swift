@@ -53,13 +53,15 @@ class NotesListVC: UIViewController {
                     for doc in snapshotDocuments {
                         let data = doc.data()
 
-                        if let messageSender = data["sender"] as? String,
-                           let messageBody = data["body"] as? String,
+                        if let sender = data["sender"] as? String,
+                           let body = data["body"] as? String,
+                           let date = data["date"] as? String,
                            let currentStatus = data["status"] as? String {
 
                             let newMessage = Note(id: doc.documentID,
-                                                  sender: messageSender,
-                                                  body: messageBody,
+                                                  date: date,
+                                                  sender: sender,
+                                                  body: body,
                                                   status: currentStatus)
                             self.notes.append(newMessage)
 
@@ -129,7 +131,7 @@ extension NotesListVC: UITableViewDelegate, UITableViewDataSource {
 
             FirebaseManager.shared.deleteData(collectionName: "notes", id: self.notes[indexPath.row].id) { error in
                 if let err = error {
-                    self.presentABAlertOnMainThread(title: "", message: err.localizedDescription, buttonTitle: "Ок")
+                    self.presentABAlertOnMainThread(title: "Something went wrong", message: err.localizedDescription, buttonTitle: "Ок")
                 } else {
                     self.loadingNotes()
                     completionHandler(true)

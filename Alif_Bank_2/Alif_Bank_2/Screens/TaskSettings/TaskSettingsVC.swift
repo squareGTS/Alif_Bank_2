@@ -15,10 +15,11 @@ class TaskSettingsVC: UIViewController {
 
     var currentPerforemer = String()
     let tableView = UITableView()
-    let time = Date()
-    var currentIndex = Int()
+    var currentSender = String()
 
     var notes: [Note] = []
+    var filterd: [String] = []
+    var currentIndex = Int()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,8 +30,13 @@ class TaskSettingsVC: UIViewController {
         chosenPerformer.text = currentPerforemer
 
         configure()
+        filterNotes()
         configureTableView()
         configurePicker()
+    }
+
+    func filterNotes() {
+        filterd = notes.map { $0.sender }.uniqued()
     }
     
     func configureTableView() {
@@ -47,19 +53,18 @@ class TaskSettingsVC: UIViewController {
 
         myDatePicker.datePickerMode = UIDatePicker.Mode.dateAndTime
         let currentDate = Date()
-//        myDatePicker.minimumDate = currentDate
         myDatePicker.date = currentDate as Date
     }
 
     @objc func changePerformerSettings() {
         FirebaseManager.shared.editData(message: notes[currentIndex].body,
-                                        sender: chosenPerformer.text ?? "",
-                                        date: myDatePicker.date,
+                                        sender: currentSender,
+                                        date: myDatePicker.date.convertToFullDateFormat(),
                                         collectionName: "notes",
                                         id: notes[currentIndex].id,
                                         curentStaatus: notes[currentIndex].status) { error in
             if let err = error {
-                self.presentABAlertOnMainThread(title: "", message: err.localizedDescription, buttonTitle: "Ок")
+                self.presentABAlertOnMainThread(title: "Something went wrong", message: err.localizedDescription, buttonTitle: "Ок")
             } else {
                 self.presentABAlertOnMainThread(title: "Your Changes", message: "Saved", buttonTitle: "Ок")
             }
@@ -99,7 +104,7 @@ class TaskSettingsVC: UIViewController {
 extension TaskSettingsVC: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return notes.count
+        return filterd.count
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -108,13 +113,13 @@ extension TaskSettingsVC: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: UserCell.reusedID, for: indexPath) as! UserCell
-        cell.userLabel.text = notes[indexPath.row].sender
+        cell.userLabel.text = filterd[indexPath.row]
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        chosenPerformer.text = notes[indexPath.row].sender
-        currentIndex = indexPath.row
+        chosenPerformer.text = filterd[indexPath.row]
+        currentSender = filterd[indexPath.row]
     }
 }
 

@@ -61,7 +61,7 @@ class ABAlertVC: UIViewController {
 
     func configureTitleLabel() {
         containerView.addSubview(titleLabel)
-        titleLabel.text = alerTitle ?? "Something went wrong"
+        titleLabel.text = alerTitle ?? ""
 
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: padding),

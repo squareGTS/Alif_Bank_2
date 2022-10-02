@@ -22,6 +22,8 @@
 		512A783328E734A400D9B24B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 512A783228E734A400D9B24B /* Assets.xcassets */; };
 		512A783628E734A400D9B24B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 512A783428E734A400D9B24B /* LaunchScreen.storyboard */; };
 		5168D33E28E949640084040C /* UserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5168D33D28E949640084040C /* UserCell.swift */; };
+		5168D34428E99E3E0084040C /* Array+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5168D34328E99E3E0084040C /* Array+Ext.swift */; };
+		5168D34C28E9CE8F0084040C /* Date+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5168D34B28E9CE8F0084040C /* Date+Ext.swift */; };
 		51764ADF28E74496009D8FCF /* LoginVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51764ADE28E74496009D8FCF /* LoginVC.swift */; };
 		51764AE128E744AD009D8FCF /* NotesListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51764AE028E744AD009D8FCF /* NotesListVC.swift */; };
 		51764AED28E75DE0009D8FCF /* ABLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51764AEC28E75DE0009D8FCF /* ABLabel.swift */; };
@@ -50,6 +52,8 @@
 		512A783528E734A400D9B24B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		512A783728E734A400D9B24B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5168D33D28E949640084040C /* UserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCell.swift; sourceTree = "<group>"; };
+		5168D34328E99E3E0084040C /* Array+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Ext.swift"; sourceTree = "<group>"; };
+		5168D34B28E9CE8F0084040C /* Date+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Ext.swift"; sourceTree = "<group>"; };
 		51764ADE28E74496009D8FCF /* LoginVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginVC.swift; sourceTree = "<group>"; };
 		51764AE028E744AD009D8FCF /* NotesListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesListVC.swift; sourceTree = "<group>"; };
 		51764AEC28E75DE0009D8FCF /* ABLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ABLabel.swift; sourceTree = "<group>"; };
@@ -97,6 +101,7 @@
 			children = (
 				512A782828E734A300D9B24B /* Alif_Bank_2 */,
 				512A782728E734A300D9B24B /* Products */,
+				5168D34528E9B3A20084040C /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -113,15 +118,10 @@
 			children = (
 				517D19F928E8639B00C7BC4B /* Managers */,
 				510047A228E7FA19006D7A1E /* Models */,
-				512A782928E734A300D9B24B /* AppDelegate.swift */,
-				512A782B28E734A300D9B24B /* SceneDelegate.swift */,
 				51764ADD28E7446E009D8FCF /* Screens */,
 				51764AEB28E75DAE009D8FCF /* Custom UI */,
 				51C77A2528E93C8900840559 /* Extension */,
-				512A783228E734A400D9B24B /* Assets.xcassets */,
-				512A783428E734A400D9B24B /* LaunchScreen.storyboard */,
-				512A783728E734A400D9B24B /* Info.plist */,
-				5100479928E796A4006D7A1E /* GoogleService-Info.plist */,
+				5168D34A28E9C1B20084040C /* Support */,
 			);
 			path = Alif_Bank_2;
 			sourceTree = "<group>";
@@ -132,6 +132,26 @@
 				5168D33D28E949640084040C /* UserCell.swift */,
 			);
 			path = Cell;
+			sourceTree = "<group>";
+		};
+		5168D34528E9B3A20084040C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		5168D34A28E9C1B20084040C /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				512A782928E734A300D9B24B /* AppDelegate.swift */,
+				512A782B28E734A300D9B24B /* SceneDelegate.swift */,
+				512A783228E734A400D9B24B /* Assets.xcassets */,
+				512A783428E734A400D9B24B /* LaunchScreen.storyboard */,
+				512A783728E734A400D9B24B /* Info.plist */,
+				5100479928E796A4006D7A1E /* GoogleService-Info.plist */,
+			);
+			path = Support;
 			sourceTree = "<group>";
 		};
 		51764ADD28E7446E009D8FCF /* Screens */ = {
@@ -222,6 +242,8 @@
 			isa = PBXGroup;
 			children = (
 				51C77A2628E93CAC00840559 /* UIVIewController+Ext.swift */,
+				5168D34328E99E3E0084040C /* Array+Ext.swift */,
+				5168D34B28E9CE8F0084040C /* Date+Ext.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -321,6 +343,8 @@
 				510047A428E7FA23006D7A1E /* Note.swift in Sources */,
 				510047A128E7F7EE006D7A1E /* NoteCell.swift in Sources */,
 				510047A828E812A3006D7A1E /* FirebaseManager.swift in Sources */,
+				5168D34C28E9CE8F0084040C /* Date+Ext.swift in Sources */,
+				5168D34428E99E3E0084040C /* Array+Ext.swift in Sources */,
 				51C77A2228E93BC500840559 /* ABBodyLabel.swift in Sources */,
 				51C77A1E28E8BD5000840559 /* TaskSettingsVC.swift in Sources */,
 				510047A628E7FEA3006D7A1E /* NoteVC.swift in Sources */,
@@ -464,7 +488,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 95M96Z9FUT;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Alif_Bank_2/Info.plist;
+				INFOPLIST_FILE = Alif_Bank_2/Support/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
@@ -491,7 +515,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 95M96Z9FUT;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Alif_Bank_2/Info.plist;
+				INFOPLIST_FILE = Alif_Bank_2/Support/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";

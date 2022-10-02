@@ -9,13 +9,14 @@ import UIKit
 
 class DetailNoteVC: UIViewController {
 
-    var pickerDataSource = ["new", "in progress", "Ready for review", "complete"];
+    var pickerDataSource = ["New", "In progress", "Ready for review", "Complete"]
 
     let senderButton = ABButton(backgroundColor: .systemGreen, title: "")
     let saveButton = ABButton(backgroundColor: .systemRed, title: "Save")
     let statusLabel = ABLabel()
     let noteTextField = ABTextField()
     let titleComment = ABLabel()
+    let dateLabel = ABLabel()
     let messageTextField = ABTextField()
     let sendMessageButton = ABButton(backgroundColor: .systemBlue, title: "Send Message")
     let pickStatus = UIPickerView()
@@ -33,6 +34,7 @@ class DetailNoteVC: UIViewController {
         title = "Detail Notes"
 
         titleComment.text = "Leave a comment bellow"
+        dateLabel.text = notes[indPath].date
 
         senderButton.addTarget(self, action: #selector(senderPressed), for: .touchUpInside)
         saveButton.addTarget(self, action: #selector(savePressed), for: .touchUpInside)
@@ -46,6 +48,11 @@ class DetailNoteVC: UIViewController {
         getStatus()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        loadNotes()
+    }
+
     func configurePicker() {
         pickStatus.translatesAutoresizingMaskIntoConstraints = false
         pickStatus.dataSource = self
@@ -54,7 +61,6 @@ class DetailNoteVC: UIViewController {
 
     func configureTableView() {
         tableView.translatesAutoresizingMaskIntoConstraints = false
-
         tableView.delegate = self
         tableView.dataSource = self
 
@@ -81,7 +87,9 @@ class DetailNoteVC: UIViewController {
         FirebaseManager.shared.loadData(collectionName: "notes") { querySnapshot, error in
 
             if let err = error {
-                self.presentABAlertOnMainThread(title: "", message: err.localizedDescription, buttonTitle: "Ok")
+                self.presentABAlertOnMainThread(title: "Something went wrong",
+                                                message: err.localizedDescription,
+                                                buttonTitle: "Ok")
             } else {
                 if let snapshotDocuments = querySnapshot?.documents {
 
@@ -89,8 +97,16 @@ class DetailNoteVC: UIViewController {
                         if doc.documentID == self.notes[self.indPath].id {
                             let data = doc.data()
 
-                            if let messageSender = data["sender"] as? String, let messageBody = data["body"] as? String, let currentStatus = data["status"] as? String {
-                                let newMessage = Note(id: doc.documentID, sender: messageSender, body: messageBody, status: currentStatus)
+                            if let sender = data["sender"] as? String,
+                               let body = data["body"] as? String,
+                               let currentStatus = data["status"] as? String,
+                               let date = data["date"] as? String {
+
+                                let newMessage = Note(id: doc.documentID,
+                                                      date: date,
+                                                      sender: sender,
+                                                      body: body,
+                                                      status: currentStatus)
                                 self.notes[self.indPath] = newMessage
                             }
                         }
@@ -105,7 +121,7 @@ class DetailNoteVC: UIViewController {
             self.messages = []
 
             if let err = error {
-                self.presentABAlertOnMainThread(title: "", message: err.localizedDescription, buttonTitle: "Ok")
+                self.presentABAlertOnMainThread(title: "Something went wrong", message: err.localizedDescription, buttonTitle: "Ok")
             } else {
                 if let snapshotDocuments = querySnapshot?.documents {
 
@@ -136,41 +152,47 @@ class DetailNoteVC: UIViewController {
         let taskSettingsVC = TaskSettingsVC()
         taskSettingsVC.notes = notes
         taskSettingsVC.currentPerforemer = senderButton.titleLabel?.text?.description ?? ""
+        taskSettingsVC.currentIndex = indPath
 
         let taskSettingsNC = UINavigationController(rootViewController: taskSettingsVC)
         present(taskSettingsNC, animated: true)
     }
 
     @objc func sendPressed() {
-        FirebaseManager.shared.saveData(message: messageTextField, collection: "messages", curentStatus: "", completion: { error in
+        FirebaseManager.shared.saveData(message: messageTextField,
+                                        collection: "messages",
+                                        curentStatus: "",
+                                        completion: { error in
             if let err = error {
-                self.presentABAlertOnMainThread(title: "", message: err.localizedDescription, buttonTitle: "Ок")
+                self.presentABAlertOnMainThread(title: "Something went wrong",
+                                                message: err.localizedDescription,
+                                                buttonTitle: "Ок")
             } else {
                 DispatchQueue.main.async {
                     self.messageTextField.text = ""
                 }
             }
         })
-
         DispatchQueue.main.async {
             self.messageTextField.text = ""
         }
     }
 
     @objc func savePressed() {
-
-print("pickerDataSource[pickerIndex]  \(pickerDataSource[pickerIndex])")
-
         FirebaseManager.shared.editData(message: noteTextField.text,
                                         sender: notes[indPath].sender,
-                                        date: Date(),
+                                        date: Date().convertToFullDateFormat(),
                                         collectionName: "notes",
                                         id: notes[indPath].id,
                                         curentStaatus: pickerDataSource[pickerIndex]) { error in
             if let err = error {
-                self.presentABAlertOnMainThread(title: "", message: err.localizedDescription, buttonTitle: "Ок")
+                self.presentABAlertOnMainThread(title: "Something went wrong",
+                                                message: err.localizedDescription,
+                                                buttonTitle: "Ок")
             } else {
-                self.presentABAlertOnMainThread(title: "Your Changes:", message: "Saved", buttonTitle: "Ок")
+                self.presentABAlertOnMainThread(title: "Your Changes:",
+                                                message: "Saved",
+                                                buttonTitle: "Ок")
             }
         }
     }
@@ -179,6 +201,7 @@ print("pickerDataSource[pickerIndex]  \(pickerDataSource[pickerIndex])")
         view.addSubview(senderButton)
         view.addSubview(saveButton)
         view.addSubview(pickStatus)
+        view.addSubview(dateLabel)
         view.addSubview(noteTextField)
         view.addSubview(titleComment)
         view.addSubview(tableView)
@@ -188,16 +211,15 @@ print("pickerDataSource[pickerIndex]  \(pickerDataSource[pickerIndex])")
         senderButton.setTitle(notes[indPath].sender, for: .normal)
         noteTextField.text = notes[indPath].body
 
-        let padding: CGFloat = 6
+        let padding: CGFloat = 8
 
         NSLayoutConstraint.activate([
-
-            senderButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
+            senderButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 60),
             senderButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
             senderButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
             senderButton.heightAnchor.constraint(equalToConstant: 30),
 
-            pickStatus.topAnchor.constraint(equalTo: senderButton.bottomAnchor, constant: 10),
+            pickStatus.topAnchor.constraint(equalTo: senderButton.bottomAnchor, constant: padding),
             pickStatus.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
             pickStatus.widthAnchor.constraint(equalToConstant: (view.frame.width / 2) - padding),
             pickStatus.heightAnchor.constraint(equalToConstant: 40),
@@ -207,7 +229,12 @@ print("pickerDataSource[pickerIndex]  \(pickerDataSource[pickerIndex])")
             saveButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
             saveButton.heightAnchor.constraint(equalToConstant: 30),
 
-            noteTextField.topAnchor.constraint(equalTo: pickStatus.bottomAnchor, constant: 20),
+            dateLabel.topAnchor.constraint(equalTo: saveButton.bottomAnchor, constant: 12),
+            dateLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
+            dateLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
+            dateLabel.heightAnchor.constraint(equalToConstant: 20),
+
+            noteTextField.topAnchor.constraint(equalTo: dateLabel.bottomAnchor, constant: 20),
             noteTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
             noteTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
             noteTextField.heightAnchor.constraint(equalToConstant: 30),
@@ -217,14 +244,14 @@ print("pickerDataSource[pickerIndex]  \(pickerDataSource[pickerIndex])")
             titleComment.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
             titleComment.heightAnchor.constraint(equalToConstant: 20),
 
-            tableView.topAnchor.constraint(equalTo: titleComment.bottomAnchor, constant: 10),
+            tableView.topAnchor.constraint(equalTo: titleComment.bottomAnchor, constant: padding),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
-            tableView.bottomAnchor.constraint(equalTo: messageTextField.topAnchor, constant: -10),
+            tableView.bottomAnchor.constraint(equalTo: messageTextField.topAnchor, constant: -padding),
 
             messageTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
             messageTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
-            messageTextField.bottomAnchor.constraint(equalTo: sendMessageButton.topAnchor, constant: -10),
+            messageTextField.bottomAnchor.constraint(equalTo: sendMessageButton.topAnchor, constant: -padding),
             messageTextField.heightAnchor.constraint(equalToConstant: 30),
 
             sendMessageButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
@@ -236,7 +263,6 @@ print("pickerDataSource[pickerIndex]  \(pickerDataSource[pickerIndex])")
 }
 
 extension DetailNoteVC: UITableViewDelegate, UITableViewDataSource {
-
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return messages.count
     }

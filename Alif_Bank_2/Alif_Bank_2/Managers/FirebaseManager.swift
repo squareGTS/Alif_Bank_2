@@ -46,7 +46,7 @@ class FirebaseManager {
     func saveData(message: UITextField, collection: String, curentStatus: String, completion: @escaping (Error?)->()) {
         if let messageBody = message.text, let messageSender = Auth.auth().currentUser?.email {
             db.collection(collection).addDocument(data: [
-                "date": Date().timeIntervalSince1970,
+                "date": Date().convertToFullDateFormat(),
                 "sender": messageSender,
                 "body": messageBody,
                 "status": curentStatus,
@@ -56,7 +56,7 @@ class FirebaseManager {
         }
     }
 
-    @objc func editData(message: String?, sender: String, date: Date, collectionName: String, id: String, curentStaatus: String, completion: @escaping (Error?)->()) {
+    @objc func editData(message: String?, sender: String, date: String, collectionName: String, id: String, curentStaatus: String, completion: @escaping (Error?)->()) {
 
         if let messageBody = message {
             db.collection(collectionName).document(id).setData([

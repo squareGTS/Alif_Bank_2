@@ -29,7 +29,7 @@ class LoginVC: UIViewController {
     @objc func logIn() {
          FirebaseManager.shared.logIn(email: emailTextField, password: passwordTextField, completion: { error in
              if let err = error {
-                 self.presentABAlertOnMainThread(title: "", message: err.localizedDescription, buttonTitle: "Ок")
+                 self.presentABAlertOnMainThread(title: "Something went wrong", message: err.localizedDescription, buttonTitle: "Ок")
              } else {
                  self.present(self.notesListNC, animated: true)
              }
@@ -39,7 +39,7 @@ class LoginVC: UIViewController {
     @objc func registration() {
         FirebaseManager.shared.registration(email: emailTextField, password: passwordTextField, completion: { error in
             if let err = error {
-                self.presentABAlertOnMainThread(title: "", message: err.localizedDescription, buttonTitle: "Ок")
+                self.presentABAlertOnMainThread(title: "Something went wrong", message: err.localizedDescription, buttonTitle: "Ок")
             } else {
                 self.present(self.notesListNC, animated: true)
             }

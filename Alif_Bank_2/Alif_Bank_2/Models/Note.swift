@@ -7,8 +7,9 @@
 
 import Foundation
 
-struct Note {
+struct Note: Hashable {
     var id: String
+    var date: String
     var sender: String
     var body: String
     var status: String
