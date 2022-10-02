@@ -43,9 +43,10 @@ class FirebaseManager {
         return status
     }
 
-    func saveData(message: UITextField, collection: String, curentStatus: String, completion: @escaping (Error?)->()) {
+    func saveData(id: String, message: UITextField, collection: String, curentStatus: String, completion: @escaping (Error?)->()) {
         if let messageBody = message.text, let messageSender = Auth.auth().currentUser?.email {
             db.collection(collection).addDocument(data: [
+                "id": id,
                 "date": Date().convertToFullDateFormat(),
                 "sender": messageSender,
                 "body": messageBody,

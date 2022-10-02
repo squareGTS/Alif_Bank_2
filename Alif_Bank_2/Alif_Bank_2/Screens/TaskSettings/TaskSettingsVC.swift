@@ -64,9 +64,13 @@ class TaskSettingsVC: UIViewController {
                                         id: notes[currentIndex].id,
                                         curentStaatus: notes[currentIndex].status) { error in
             if let err = error {
-                self.presentABAlertOnMainThread(title: "Something went wrong", message: err.localizedDescription, buttonTitle: "Ок")
+                self.presentABAlertOnMainThread(title: "Something went wrong",
+                                                message: err.localizedDescription,
+                                                buttonTitle: "Ок")
             } else {
-                self.presentABAlertOnMainThread(title: "Your Changes", message: "Saved", buttonTitle: "Ок")
+                self.presentABAlertOnMainThread(title: "Your Changes",
+                                                message: "Saved",
+                                                buttonTitle: "Ок")
             }
         }
     }

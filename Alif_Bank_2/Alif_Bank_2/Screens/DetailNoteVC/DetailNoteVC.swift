@@ -121,7 +121,9 @@ class DetailNoteVC: UIViewController {
             self.messages = []
 
             if let err = error {
-                self.presentABAlertOnMainThread(title: "Something went wrong", message: err.localizedDescription, buttonTitle: "Ok")
+                self.presentABAlertOnMainThread(title: "Something went wrong",
+                                                message: err.localizedDescription,
+                                                buttonTitle: "Ok")
             } else {
                 if let snapshotDocuments = querySnapshot?.documents {
 
@@ -132,14 +134,24 @@ class DetailNoteVC: UIViewController {
                     for doc in snapshotDocuments {
                         let data = doc.data()
 
-                        if let messageSender = data["sender"] as? String, let messageBody = data["body"] as? String {
-                            let newMessage = Message(sender: messageSender, body: messageBody)
-                            self.messages.append(newMessage)
+                        if let id = data["id"] as? String,
+                           let messageSender = data["sender"] as? String,
+                           let messageBody = data["body"] as? String {
+
+                            let newMessage = Message(id: id,
+                                                     sender: messageSender,
+                                                     body: messageBody)
+
+                            if self.notes[self.indPath].id == newMessage.id {
+                                self.messages.append(newMessage)
+                            }
 
                             DispatchQueue.main.async {
                                 self.tableView.reloadData()
                                 let indexPath = IndexPath(row: self.messages.count - 1, section: 0)
-                                self.tableView.scrollToRow(at: indexPath, at: .top, animated: false)
+                                if !self.messages.isEmpty {
+                                    self.tableView.scrollToRow(at: indexPath, at: .top, animated: false)
+                                }
                             }
                         }
                     }
@@ -159,7 +171,8 @@ class DetailNoteVC: UIViewController {
     }
 
     @objc func sendPressed() {
-        FirebaseManager.shared.saveData(message: messageTextField,
+        FirebaseManager.shared.saveData(id: notes[indPath].id,
+                                        message: messageTextField,
                                         collection: "messages",
                                         curentStatus: "",
                                         completion: { error in
@@ -190,7 +203,7 @@ class DetailNoteVC: UIViewController {
                                                 message: err.localizedDescription,
                                                 buttonTitle: "Ок")
             } else {
-                self.presentABAlertOnMainThread(title: "Your Changes:",
+                self.presentABAlertOnMainThread(title: "Your Changes",
                                                 message: "Saved",
                                                 buttonTitle: "Ок")
             }

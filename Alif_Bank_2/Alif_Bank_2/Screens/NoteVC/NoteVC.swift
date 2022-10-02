@@ -23,7 +23,8 @@ class NoteVC: UIViewController {
     }
 
     @objc func savePressed() {
-        FirebaseManager.shared.saveData(message: messageTextField,
+        FirebaseManager.shared.saveData(id: "",
+                                        message: messageTextField,
                                         collection: "notes",
                                         curentStatus: "new") { error in
             if let err = error {
