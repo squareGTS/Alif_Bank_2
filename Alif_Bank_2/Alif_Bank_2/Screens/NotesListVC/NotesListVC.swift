@@ -53,8 +53,14 @@ class NotesListVC: UIViewController {
                     for doc in snapshotDocuments {
                         let data = doc.data()
 
-                        if let messageSender = data["sender"] as? String, let messageBody = data["body"] as? String {
-                            let newMessage = Note(sender: messageSender, body: messageBody, id: doc.documentID)
+                        if let messageSender = data["sender"] as? String,
+                           let messageBody = data["body"] as? String,
+                           let currentStatus = data["status"] as? String {
+
+                            let newMessage = Note(id: doc.documentID,
+                                                  sender: messageSender,
+                                                  body: messageBody,
+                                                  status: currentStatus)
                             self.notes.append(newMessage)
 
                             DispatchQueue.main.async {
@@ -108,7 +114,8 @@ extension NotesListVC: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let detailNoteVC = DetailNoteVC()
-        detailNoteVC.note = notes[indexPath.row]
+        detailNoteVC.notes = notes
+        detailNoteVC.indPath = indexPath.row
 
         let detailNoteNC = UINavigationController(rootViewController: detailNoteVC)
         present(detailNoteNC, animated: true)
@@ -120,9 +127,13 @@ extension NotesListVC: UITableViewDelegate, UITableViewDataSource {
                                         title: "Delete") { [weak self] (action, view, completionHandler) in
             guard let self = self else { return }
 
-            FirebaseManager.shared.deleteData(id: self.notes[indexPath.row].id) {
-                self.loadingNotes()
-                completionHandler(true)
+            FirebaseManager.shared.deleteData(collectionName: "notes", id: self.notes[indexPath.row].id) { error in
+                if let err = error {
+                    self.presentABAlertOnMainThread(title: "", message: err.localizedDescription, buttonTitle: "Ок")
+                } else {
+                    self.loadingNotes()
+                    completionHandler(true)
+                }
             }
         }
         return UISwipeActionsConfiguration(actions: [action])

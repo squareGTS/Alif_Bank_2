@@ -6,22 +6,25 @@
 //
 
 import UIKit
-import FirebaseAuth
-import FirebaseFirestore
 
 class DetailNoteVC: UIViewController {
 
+    var pickerDataSource = ["new", "in progress", "Ready for review", "complete"];
+
+    let senderButton = ABButton(backgroundColor: .systemGreen, title: "")
+    let saveButton = ABButton(backgroundColor: .systemRed, title: "Save")
+    let statusLabel = ABLabel()
     let noteTextField = ABTextField()
+    let titleComment = ABLabel()
     let messageTextField = ABTextField()
-    let editButton = ABButton(backgroundColor: .systemRed, title: "Edit")
     let sendMessageButton = ABButton(backgroundColor: .systemBlue, title: "Send Message")
-    let senderLabel = ABLabel(textAlignment: .center, fontSize: 14, numberOfLines: 2)
+    let pickStatus = UIPickerView()
 
     var tableView = UITableView()
-    var note: Note!
+    var pickerIndex = Int()
+    var notes: [Note] = []
+    var indPath = Int()
     var messages: [Message] = []
-
-    let db = Firestore.firestore()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,13 +32,24 @@ class DetailNoteVC: UIViewController {
         view.backgroundColor = .systemBackground
         title = "Detail Notes"
 
-        editButton.addTarget(self, action: #selector(editPressed), for: .touchUpInside)
+        titleComment.text = "Leave a comment bellow"
+
+        senderButton.addTarget(self, action: #selector(senderPressed), for: .touchUpInside)
+        saveButton.addTarget(self, action: #selector(savePressed), for: .touchUpInside)
         sendMessageButton.addTarget(self, action: #selector(sendPressed), for: .touchUpInside)
 
         configure()
+        configurePicker()
         configureTableView()
         loadNotes()
         loadingMessages()
+        getStatus()
+    }
+
+    func configurePicker() {
+        pickStatus.translatesAutoresizingMaskIntoConstraints = false
+        pickStatus.dataSource = self
+        pickStatus.delegate = self
     }
 
     func configureTableView() {
@@ -47,21 +61,37 @@ class DetailNoteVC: UIViewController {
         tableView.register(MessageCell.self, forCellReuseIdentifier: MessageCell.reusedID)
     }
 
+    func getStatus() {
+        changeBackground(row: pickerDataSource.firstIndex(of: notes[indPath].status) ?? 0)
+        pickStatus.selectRow(pickerDataSource.firstIndex(of: notes[indPath].status) ?? 0, inComponent: 0, animated: true)
+    }
+
+    func changeBackground(row: Int) {
+        switch row {
+        case 0: self.view.backgroundColor = .systemBackground
+        case 1: self.view.backgroundColor = .systemRed
+        case 2: self.view.backgroundColor = .systemGray3
+        case 3: self.view.backgroundColor = .systemGreen
+        default:
+            break
+        }
+    }
+
     func loadNotes() {
         FirebaseManager.shared.loadData(collectionName: "notes") { querySnapshot, error in
 
-            if let e = error {
-                print("There was an issue retrieving data from Firestore. \(e)")
+            if let err = error {
+                self.presentABAlertOnMainThread(title: "", message: err.localizedDescription, buttonTitle: "Ok")
             } else {
                 if let snapshotDocuments = querySnapshot?.documents {
 
                     for doc in snapshotDocuments {
-                        if doc.documentID == self.note.id {
+                        if doc.documentID == self.notes[self.indPath].id {
                             let data = doc.data()
 
-                            if let messageSender = data["sender"] as? String, let messageBody = data["body"] as? String {
-                                let newMessage = Note(sender: messageSender, body: messageBody, id: doc.documentID)
-                                self.note = newMessage
+                            if let messageSender = data["sender"] as? String, let messageBody = data["body"] as? String, let currentStatus = data["status"] as? String {
+                                let newMessage = Note(id: doc.documentID, sender: messageSender, body: messageBody, status: currentStatus)
+                                self.notes[self.indPath] = newMessage
                             }
                         }
                     }
@@ -74,8 +104,8 @@ class DetailNoteVC: UIViewController {
         FirebaseManager.shared.loadData(collectionName: "messages") { querySnapshot, error in
             self.messages = []
 
-            if let e = error {
-                print("There was an issue retrieving data from Firestore. \(e)")
+            if let err = error {
+                self.presentABAlertOnMainThread(title: "", message: err.localizedDescription, buttonTitle: "Ok")
             } else {
                 if let snapshotDocuments = querySnapshot?.documents {
 
@@ -102,65 +132,92 @@ class DetailNoteVC: UIViewController {
         }
     }
 
+    @objc func senderPressed() {
+        let taskSettingsVC = TaskSettingsVC()
+        taskSettingsVC.notes = notes
+        taskSettingsVC.currentPerforemer = senderButton.titleLabel?.text?.description ?? ""
+
+        let taskSettingsNC = UINavigationController(rootViewController: taskSettingsVC)
+        present(taskSettingsNC, animated: true)
+    }
+
     @objc func sendPressed() {
-        FirebaseManager.shared.saveData(message: messageTextField, collection: "messages")
+        FirebaseManager.shared.saveData(message: messageTextField, collection: "messages", curentStatus: "", completion: { error in
+            if let err = error {
+                self.presentABAlertOnMainThread(title: "", message: err.localizedDescription, buttonTitle: "Ок")
+            } else {
+                DispatchQueue.main.async {
+                    self.messageTextField.text = ""
+                }
+            }
+        })
 
         DispatchQueue.main.async {
             self.messageTextField.text = ""
         }
     }
 
-    @objc func editPressed() {
+    @objc func savePressed() {
 
-        if let messageBody = noteTextField.text, let messageSender = Auth.auth().currentUser?.email {
-            db.collection("notes").addDocument(data: [
-                "sender": messageSender,
-                "body": messageBody,
-                "date": Date().timeIntervalSince1970,
-            ]) { (error) in
-                if let e = error {
-                    print("There was an issue saving data to firestore, \(e)")
-                } else {
-                    print("Successfully saved data.")
+print("pickerDataSource[pickerIndex]  \(pickerDataSource[pickerIndex])")
 
-                    //                    DispatchQueue.main.async {
-                    //                        self.noteTextField.text = ""
-                    //                    }
-                }
+        FirebaseManager.shared.editData(message: noteTextField.text,
+                                        sender: notes[indPath].sender,
+                                        date: Date(),
+                                        collectionName: "notes",
+                                        id: notes[indPath].id,
+                                        curentStaatus: pickerDataSource[pickerIndex]) { error in
+            if let err = error {
+                self.presentABAlertOnMainThread(title: "", message: err.localizedDescription, buttonTitle: "Ок")
+            } else {
+                self.presentABAlertOnMainThread(title: "Your Changes:", message: "Saved", buttonTitle: "Ок")
             }
         }
     }
 
     private func configure() {
-        view.addSubview(senderLabel)
-        view.addSubview(editButton)
+        view.addSubview(senderButton)
+        view.addSubview(saveButton)
+        view.addSubview(pickStatus)
         view.addSubview(noteTextField)
+        view.addSubview(titleComment)
         view.addSubview(tableView)
         view.addSubview(messageTextField)
         view.addSubview(sendMessageButton)
 
-        senderLabel.text = note.sender
-        noteTextField.text = note.body
+        senderButton.setTitle(notes[indPath].sender, for: .normal)
+        noteTextField.text = notes[indPath].body
 
         let padding: CGFloat = 6
 
         NSLayoutConstraint.activate([
-            editButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 80),
-            editButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
-            editButton.heightAnchor.constraint(equalToConstant: 30),
-            editButton.widthAnchor.constraint(equalToConstant: 80),
 
-            senderLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 40),
-            senderLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
-            senderLabel.heightAnchor.constraint(equalToConstant: 20),
-            senderLabel.widthAnchor.constraint(equalToConstant: view.frame.width / 2),
+            senderButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
+            senderButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
+            senderButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
+            senderButton.heightAnchor.constraint(equalToConstant: 30),
 
-            noteTextField.topAnchor.constraint(equalTo: senderLabel.bottomAnchor, constant: 20),
+            pickStatus.topAnchor.constraint(equalTo: senderButton.bottomAnchor, constant: 10),
+            pickStatus.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
+            pickStatus.widthAnchor.constraint(equalToConstant: (view.frame.width / 2) - padding),
+            pickStatus.heightAnchor.constraint(equalToConstant: 40),
+
+            saveButton.centerYAnchor.constraint(equalTo: pickStatus.centerYAnchor),
+            saveButton.leadingAnchor.constraint(equalTo: pickStatus.trailingAnchor, constant: padding),
+            saveButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
+            saveButton.heightAnchor.constraint(equalToConstant: 30),
+
+            noteTextField.topAnchor.constraint(equalTo: pickStatus.bottomAnchor, constant: 20),
             noteTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
             noteTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
             noteTextField.heightAnchor.constraint(equalToConstant: 30),
 
-            tableView.topAnchor.constraint(equalTo: noteTextField.bottomAnchor, constant: 10),
+            titleComment.topAnchor.constraint(equalTo: noteTextField.bottomAnchor, constant: 25),
+            titleComment.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
+            titleComment.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
+            titleComment.heightAnchor.constraint(equalToConstant: 20),
+
+            tableView.topAnchor.constraint(equalTo: titleComment.bottomAnchor, constant: 10),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
             tableView.bottomAnchor.constraint(equalTo: messageTextField.topAnchor, constant: -10),
@@ -184,14 +241,33 @@ extension DetailNoteVC: UITableViewDelegate, UITableViewDataSource {
         return messages.count
     }
 
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 50
+    }
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: MessageCell.reusedID, for: indexPath) as! MessageCell
         cell.senderLabel.text = messages[indexPath.row].sender
         cell.messageLabel.text = messages[indexPath.row].body
         return cell
     }
+}
 
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 50
+extension DetailNoteVC: UIPickerViewDataSource, UIPickerViewDelegate {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return pickerDataSource.count
+    }
+
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return pickerDataSource[row]
+    }
+
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        pickerIndex = row
+        changeBackground(row: row)
     }
 }

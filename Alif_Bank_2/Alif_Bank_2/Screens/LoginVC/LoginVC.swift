@@ -9,7 +9,7 @@ import UIKit
 
 class LoginVC: UIViewController {
 
-    let nameOfApplication = ABLabel(textAlignment: .center, fontSize: 30, numberOfLines: 1)
+    let nameOfApplication = ABTitleLabel(textAlignment: .center, fontSize: 30)
     let emailTextField = ABTextField()
     let passwordTextField = ABTextField()
     let loginPressed = ABButton(backgroundColor: .systemGreen, title: "Log In")
@@ -27,14 +27,22 @@ class LoginVC: UIViewController {
     }
 
     @objc func logIn() {
-         FirebaseManager.shared.logIn(email: emailTextField, password: passwordTextField, completion: {
-            self.present(self.notesListNC, animated: true)
+         FirebaseManager.shared.logIn(email: emailTextField, password: passwordTextField, completion: { error in
+             if let err = error {
+                 self.presentABAlertOnMainThread(title: "", message: err.localizedDescription, buttonTitle: "Ок")
+             } else {
+                 self.present(self.notesListNC, animated: true)
+             }
         })
     }
 
     @objc func registration() {
-        FirebaseManager.shared.registration(email: emailTextField, password: passwordTextField, completion: {
-           self.present(self.notesListNC, animated: true)
+        FirebaseManager.shared.registration(email: emailTextField, password: passwordTextField, completion: { error in
+            if let err = error {
+                self.presentABAlertOnMainThread(title: "", message: err.localizedDescription, buttonTitle: "Ок")
+            } else {
+                self.present(self.notesListNC, animated: true)
+            }
        })
     }
 

@@ -8,7 +8,8 @@
 import Foundation
 
 struct Note {
+    var id: String
     var sender: String
     var body: String
-    var id: String
+    var status: String
 }

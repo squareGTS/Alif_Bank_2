@@ -23,32 +23,112 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "1E023339-AF00-4772-BDBF-19E42D6D0715"
+            uuid = "E877AB2A-BCD8-4D29-A725-9EE8546B59DC"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Alif_Bank_2/Screens/LoginVC/LoginVC.swift"
+            filePath = "Alif_Bank_2/Screens/TaskSettings/TaskSettingsVC.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "31"
-            endingLineNumber = "31"
-            landmarkName = "logIn()"
+            startingLineNumber = "64"
+            endingLineNumber = "64"
+            landmarkName = "changePerformerSettings()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "417CCAD3-7F4C-4678-8304-27A1CBCACB38"
+            uuid = "C57077A8-C3A9-444C-B625-F7F77FCE08E1"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Alif_Bank_2/Screens/LoginVC/LoginVC.swift"
+            filePath = "Alif_Bank_2/Screens/DetailNoteVC/DetailNoteVC.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "37"
-            endingLineNumber = "37"
-            landmarkName = "registration()"
+            startingLineNumber = "71"
+            endingLineNumber = "71"
+            landmarkName = "changeBackground(row:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "88B8B76A-49BC-4F8F-BA63-40059FF9B310"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Alif_Bank_2/Screens/DetailNoteVC/DetailNoteVC.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "72"
+            endingLineNumber = "72"
+            landmarkName = "changeBackground(row:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "EB03E4DC-B065-43FE-8AC8-A3A2747A1A76"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Alif_Bank_2/Screens/DetailNoteVC/DetailNoteVC.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "73"
+            endingLineNumber = "73"
+            landmarkName = "changeBackground(row:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "EB03E4DC-B065-43FE-8AC8-A3A2747A1A76 - aa57bef8f5b951c7"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Alif_Bank_2.DetailNoteVC.loadNotes() -&gt; ()"
+                  moduleName = "Alif_Bank_2"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/maximbekmetov/Documents/Alif_Bank_2/Alif_Bank_2/Alif_Bank_2/Screens/DetailNoteVC/DetailNoteVC.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "82"
+                  endingLineNumber = "82"
+                  offsetFromSymbolStart = "32">
+               </Location>
+               <Location
+                  uuid = "EB03E4DC-B065-43FE-8AC8-A3A2747A1A76 - 458462df0cd79c44"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Optional&lt;__C.FIRQuerySnapshot&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in Alif_Bank_2.DetailNoteVC.loadNotes() -&gt; ()"
+                  moduleName = "Alif_Bank_2"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/maximbekmetov/Documents/Alif_Bank_2/Alif_Bank_2/Alif_Bank_2/Screens/DetailNoteVC/DetailNoteVC.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "84"
+                  endingLineNumber = "84"
+                  offsetFromSymbolStart = "168">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "9C46112C-4E4D-4F88-B454-522B1366DA79"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Alif_Bank_2/Screens/DetailNoteVC/DetailNoteVC.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "74"
+            endingLineNumber = "74"
+            landmarkName = "changeBackground(row:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

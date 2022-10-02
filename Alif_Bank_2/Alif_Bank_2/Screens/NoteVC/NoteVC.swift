@@ -23,10 +23,14 @@ class NoteVC: UIViewController {
     }
 
     @objc func savePressed() {
-        FirebaseManager.shared.saveData(message: messageTextField, collection: "notes")
-
-        DispatchQueue.main.async {
-            self.messageTextField.text = ""
+        FirebaseManager.shared.saveData(message: messageTextField, collection: "notes", curentStatus: "new") { error in
+            if let err = error {
+                self.presentABAlertOnMainThread(title: "", message: err.localizedDescription, buttonTitle: "Ok")
+            } else {
+                DispatchQueue.main.async {
+                    self.messageTextField.text = ""
+                }
+            }
         }
     }
 
